@@ -11,7 +11,7 @@ from modules.utils.logger import setup_logger
 from modules.data import build_data
 from modules.model import build_model
 from modules.data.transforms import GlobalTransform, LocalTransform
-from modules.engine import do_infer
+from modules.engine import do_infer, do_eval
 import random
 
 
@@ -23,20 +23,22 @@ def set_seed(seed=1234):
 
 def main(cfg):
     logger = setup_logger(name=cfg.NAME, level=cfg.LOGGER.LEVEL, stream=cfg.LOGGER.STREAM)
-    logger.info(cfg)
     device = torch.device(cfg.DEVICE)
 
     model = build_model(cfg)
     
     n_parameters = sum([p.data.nelement() for p in model.parameters()])
-    logger.info(f"Number of parameters: {n_parameters}")
     
     model.to(device)
 
     start_epoch=0
     gt = GlobalTransform(cfg)#global stream data process
+ 
+    if os.path.exists('./idxs.txt'):
+        os.chmod('./idxs.txt', 0o777)
+        os.remove('./idxs.txt')
 
-    test_candidate_loader = build_data(cfg)
+    test_candidate_loader = build_data(cfg, 'TEST')
 
     path = './runs/FashionAI_s2/model_best.pth.tar'
     if os.path.isfile(path):
@@ -47,10 +49,8 @@ def main(cfg):
         sys.exit()
 
     lt = LocalTransform(cfg)
-    model.load_from(np.load("./imagenet21k_ViT-B_16.npz")
+    model.load_from(np.load('./imagenet21k_ViT-B_16.npz'))
 
-
-    logger.info(f"Begin test on {args.test} set.")
     do_infer(
         model,  
         test_candidate_loader, 
@@ -66,6 +66,8 @@ def main(cfg):
 
 if __name__ == "__main__":
     torch.set_num_threads(1)
+    cfg.merge_from_file('./config/FashionAI/FashionAI.yaml')
+    cfg.merge_from_file('./config/FashionAI/s2.yaml')
     cfg.freeze()
     set_seed()
     main(cfg)

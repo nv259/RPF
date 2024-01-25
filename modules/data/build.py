@@ -32,14 +32,6 @@ def build_data(cfg, test_on=None):
 		return train_loader, valid_query_loader, valid_candidate_loader
 	else:
 		test_set = BaseDataSet(cfg, test_on)
-		
-		test_query_loader = DataLoader(
-			test_set,
-			collate_fn=image_collate_fn,
-			batch_sampler=ImageSampler(cfg, cfg.DATA.GROUNDTRUTH.QUERY[test_on]),
-			num_workers=cfg.DATA.NUM_WORKERS,
-			pin_memory=True
-		)
 
 		test_candidate_loader = DataLoader(
 			test_set,
@@ -49,4 +41,4 @@ def build_data(cfg, test_on=None):
 			pin_memory=True
 		)
 
-		return test_query_loader, test_candidate_loader
+		return test_candidate_loader

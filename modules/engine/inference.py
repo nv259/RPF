@@ -21,7 +21,11 @@ def do_infer(
     model.eval()
 
     c_idxs, c_feats = extract_features(model, candidate_loader, gt, lt, device, len(attrs), beta=beta)
-    print(c_idxs)
+    for i, attr in enumerate(attrs):
+        print(c_idxs[i].shape)
+        print(c_feats[i].shape)
+
+    return c_idxs, c_feats
 
 def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
     feats = []
@@ -31,21 +35,24 @@ def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
     with tqdm(total=len(data_loader)) as bar:
         cnt = 0
         for idx, batch in enumerate(data_loader):
-            x, a, v = batch
-            print(x, a, v)
+            x, bidxs, a, v = batch
             a = a.to(device)
             
             out= process_batch(model, x, a, gt, lt, device, beta=beta)
             
             feats.append(out.cpu().numpy())
-            values.append(v.numpy())
 
             for i in range(a.size(0)):
                 indices[a[i].cpu().item()].append(cnt)
                 cnt += 1
 
+            idxs += bidxs
+
             bar.update(1)
+
+    print(feats)
     feats = np.concatenate(feats)
+    idxs = np.concatenate([idxs])
 
     feats = [feats[indices[i]] for i in range(n_attrs)]
     idxs = [idxs[indices[i]] for i in range(n_attrs)]

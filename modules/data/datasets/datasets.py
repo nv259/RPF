@@ -24,13 +24,12 @@ class BaseDataSet(Dataset):
         return self.fnamelist
 
     def __getitem__(self, index):
-        # print(index)
         path = os.path.join(self.root_path, self.fnamelist[index[0]])
         assert os.path.exists(path), f"File {path} does not exist."
 
         img = self.image_loader(path)
 
-        return (img,) + index[1:]
+        return (img,) + index[0:]
 
 def tripletInfo_collate_fn(batch):
     xpn= batch
@@ -53,9 +52,9 @@ def tripletInfo_collate_fn(batch):
 
 def image_collate_fn(batch):
     # print(batch)
-    x, a, v = zip(*batch)
+    x, idxs, a, v = zip(*batch)
 
     a = torch.LongTensor(a)
     v = torch.LongTensor(v)
 
-    return x, a, v
+    return x, idxs, a, v
