@@ -33,10 +33,6 @@ def main(cfg):
 
     start_epoch=0
     gt = GlobalTransform(cfg)#global stream data process
- 
-    if os.path.exists('./idxs.txt'):
-        os.chmod('./idxs.txt', 0o777)
-        os.remove('./idxs.txt')
 
     test_candidate_loader = build_data(cfg, 'TEST')
 
@@ -51,7 +47,7 @@ def main(cfg):
     lt = LocalTransform(cfg)
     model.load_from(np.load('./imagenet21k_ViT-B_16.npz'))
 
-    do_infer(
+    idxs, feats = do_infer(
         model,  
         test_candidate_loader, 
         gt, 
@@ -62,7 +58,6 @@ def main(cfg):
         epoch=-1, 
         beta=cfg.SOLVER.BETA
     )
-    sys.exit()
 
 if __name__ == "__main__":
     torch.set_num_threads(1)
