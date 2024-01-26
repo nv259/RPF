@@ -29,9 +29,6 @@ class BaseDataSet(Dataset):
 
         img = self.image_loader(path)
 
-        index = list(index)
-        index[1] = 0
-        index = tuple(index)
         return (img,) + index[0:]
 
 def tripletInfo_collate_fn(batch):

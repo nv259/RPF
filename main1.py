@@ -11,7 +11,7 @@ from modules.utils.logger import setup_logger
 from modules.data import build_data
 from modules.model import build_model
 from modules.data.transforms import GlobalTransform, LocalTransform
-from modules.engine import do_infer, do_eval
+from modules.engine import do_prep
 import random
 
 
@@ -47,7 +47,7 @@ def main(cfg):
     lt = LocalTransform(cfg)
     model.load_from(np.load('./imagenet21k_ViT-B_16.npz'))
 
-    idxs, feats = do_infer(
+    idxs, feats = do_prep(
         model,  
         test_candidate_loader, 
         gt, 
