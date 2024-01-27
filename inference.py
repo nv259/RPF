@@ -1,15 +1,22 @@
 import argparse
-import os, sys
+import time 
 
 import torch
 from torch import nn
+
 from PIL import Image
+
+# large scale image search
+from sklearn.neighbors import KDTree
+from lshashpy3 import LSHash
+import faiss 
+import h5py
 
 import numpy as np
 from modules.config import cfg
 from modules.model import build_model
-# from modules.engine.inference import extract_features
 from modules.data.transforms import GlobalTransform, LocalTransform
+import joblib
 
 import random
 
@@ -84,7 +91,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--lsis", default=None, type=str, 
-        choices=["kde", "lsh", "faiss"],
+        choices=["kdtree", "lsh", "faiss"],
         help="large scale image search technique"
     ) 
     parser.add_argument(
@@ -111,15 +118,50 @@ def parse_args():
     return parser.parse_args()
 
 
-def main(args, cfg):
+def main(args, cfg, k=50):
     extractor = FeatureExtractor(cfg, args.verbose)
     
-    x = Image.open(args.image)
-    a = torch.tensor(cfg.DATA.ATTRIBUTES.NAME.index(args.attr))
+    attr_idx = cfg.DATA.ATTRIBUTES.NAME.index(args.attr)
+    x = Image.open(args.image).convert('RGB')
+    a = torch.tensor(attr_idx)
     
-    feature = extractor(x, a)   
+    # extract feature of query image (with attribute information)
+    feature = extractor(x, a) 
     
+    # load collection
+    collection_id = joblib.load("collections/c_idxs.npy")
+    with h5py.File("collections/data.h5", 'r') as file:
+        collection = file["attr" + str(attr_idx)]
+    
+    kdtree = KDTree(collection)
+    lsh = LSHash(10, collection.shape[1], 3)
+    for i in range(len(collection)):
+        lsh.index(collection[i])
+    index_flat = faiss.IndexFlatL2(collection.shape[1])
+    if faiss.get_num_gpus() > 0:
+        res = faiss.StandardGPUResources()
+        index_flat = faiss.index_cpu_to_gpu(res, 0, index_flat)
+    index_flat.train(collection) 
+    index_flat.add(collection)
+    
+    # find `k` most similar images to query image
+    start_time = time.time()
+    
+    if args.lsis is None:
+        dists = np.linalg.norm(collection - feature, axis=1) 
+        ids = np.argsort(dists)[:k]
+    if args.lsis == 'kdtree':
+        dists, ids = kdtree.query(feature, k=k)
+    if args.lsis == 'lsh':
+        neighbors = lsh.query(feature.flatten(), num_results=k, distance_func='euclidean') 
+        ids = [neighbor[0][1] for neighbor in neighbors]
+        dists = [neighbor[1] for neighbor in neighbors]
+    if args.lsis == 'faiss':
+        dists, ids = index_flat.search(feature, k) 
      
+    finish_time = time.time()
+    print(collection_id[ids])
+    
     
 if __name__ == "__main__":
     torch.set_num_threads(1)
