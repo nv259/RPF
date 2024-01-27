@@ -90,7 +90,7 @@ def set_seed(seed=1234):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--lsis", default=None, type=str, 
+        "--lsis", default='lsh', type=str, 
         choices=["kdtree", "lsh", "faiss"],
         help="large scale image search technique"
     ) 
@@ -126,20 +126,20 @@ def main(args, cfg, k=50):
     a = torch.tensor(attr_idx)
     
     # extract feature of query image (with attribute information)
-    feature = extractor(x, a) 
+    feature = extractor(x, a).cpu().numpy()
     
     # load collection
     collection_id = joblib.load("collections/c_idxs.npy")
     with h5py.File("collections/data.h5", 'r') as file:
-        collection = file["attr" + str(attr_idx)]
+        collection = file["attr" + str(attr_idx)][...]
     
     kdtree = KDTree(collection)
     lsh = LSHash(10, collection.shape[1], 3)
     for i in range(len(collection)):
-        lsh.index(collection[i])
+        lsh.index(collection[i], extra_data=i)
     index_flat = faiss.IndexFlatL2(collection.shape[1])
     if faiss.get_num_gpus() > 0:
-        res = faiss.StandardGPUResources()
+        res = faiss.StandardGpuResources()
         index_flat = faiss.index_cpu_to_gpu(res, 0, index_flat)
     index_flat.train(collection) 
     index_flat.add(collection)
@@ -160,6 +160,7 @@ def main(args, cfg, k=50):
         dists, ids = index_flat.search(feature, k) 
      
     finish_time = time.time()
+    print("Retrieval time:", finish_time - start_time)
     print(collection_id[ids])
     
     
