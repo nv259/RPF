@@ -16,6 +16,8 @@ _C.DEVICE = "cuda"
 # Model Related
 _C.MODEL = CN()
 _C.MODEL.EMBED_SIZE = 1024
+_C.MODEL.CHECKPOINT = "runs/FashionAI_s2/model_best.pth.tar"
+_C.MODEL.VIT_PRETRAINED = "pretrained/resnet50-19c8e357.pth"
 _C.MODEL.ATTRIBUTE = CN()
 _C.MODEL.ATTRIBUTE.EMBED_SIZE = 512
 
