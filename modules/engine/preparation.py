@@ -25,10 +25,10 @@ def create_collections(
 
     c_idxs, c_feats = extract_features(model, candidate_loader, gt, lt, device, len(attrs), beta=beta)
     for i, attr in enumerate(attrs):
-        print(c_feats[i].shape)
-        for j in c_feats[i]:
-            print(j)
-            print(magnitude(j))
+        print(c_idxs[i].shape)
+        if c_idxs[i].shape[0] > 0:
+            dump(c_idxs[i], './c_idxs_' + str(i))
+            dump(c_feats[i], './c_feats_' + str(i))
 
 def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
     feats = []
