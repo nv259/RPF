@@ -163,6 +163,7 @@ cython_debug/
 
 # zip files
 *.zip
+*.h5
 
 # npy files
 *.npy
@@ -170,7 +171,7 @@ cython_debug/
 
 # pretrained
 *.pth
-*.pth.tar
+*.tar
 
 # vscode
 .vscode/
