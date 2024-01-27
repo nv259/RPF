@@ -11,7 +11,7 @@ from modules.utils.logger import setup_logger
 from modules.data import build_data
 from modules.model import build_model
 from modules.data.transforms import GlobalTransform, LocalTransform
-from modules.engine import do_prep
+from modules.engine import create_collections, do_eval
 import random
 
 
@@ -45,9 +45,10 @@ def main(cfg):
         sys.exit()
 
     lt = LocalTransform(cfg)
-    model.load_from(np.load('./imagenet21k_ViT-B_16.npz'))
+    x = np.load('./pretrained/imagenet21k_ViT-B_16.npz')
+    model.load_from(x)
 
-    idxs, feats = do_prep(
+    idxs, feats = create_collections(
         model,  
         test_candidate_loader, 
         gt, 

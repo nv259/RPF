@@ -10,7 +10,7 @@ from modules.utils.metric import APScorer, AverageMeter
 def magnitude(vector): 
     return math.sqrt(sum(pow(element, 2) for element in vector))
 
-def do_prep(
+def create_collections(
     model,
     candidate_loader,
     gt,
