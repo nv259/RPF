@@ -45,7 +45,7 @@ def main(cfg):
         sys.exit()
 
     lt = LocalTransform(cfg)
-    x = np.load('./pretrained/imagenet21k_ViT-B_16.npz')
+    x = np.load("pretrained/imagenet21k_ViT-B_16.npz")
     model.load_from(x)
 
     idxs, feats = create_collections(

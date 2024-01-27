@@ -150,9 +150,16 @@ class Transformer(nn.Module):
         a = a + a_type
         x_type = self.type_embed[:,1].expand(B, N, -1)
         x_output = x_output + x_type
+        
         # Using attribute-aware Transformer fliter out certain patches
-        x_output=self.crossencoder(x_output, a).squeeze(dim=1)
-
+        x_output=self.crossencoder(x_output, a)
+        
+        try:
+            x_output = x_output.squeeze(dim=1)
+        except:
+            # for computing feature of query image 
+            x_output = x_output.unsqueeze(dim=0)
+        
         f = self.norm(x_output)
 
         return f
