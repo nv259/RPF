@@ -5,3 +5,5 @@ yacs==0.1.8
 opencv-python==4.5.3.56
 numpy==1.19.5
 tensorboard==2.6.0
+timm
+joblib

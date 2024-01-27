@@ -31,10 +31,18 @@ class FeatureExtractor(torch.nn.Module):
         self.lt = LocalTransform(cfg)
         
     def forward(self, x, a):
-        x = x.to(self.device)
+        # x = x.to(self.device)
         a = a.to(self.device)
         
         gx = self.gt(x)
+        gx.to(self.device)
+        
+        with torch.no_grad():
+            g_feat, _, attmap = self.model(self.gx, a, level='global')
+            
+        attmap = attmap.cpu().numpy()
+        
+        lx = lt()
 
 
 

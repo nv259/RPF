@@ -145,7 +145,7 @@ def resnet50_feature(pretrained=True):
 
     if pretrained:
         state = rnet50.state_dict()
-        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet50-19c8e357.pth',model_dir='/home/pxm/pretrained')
+        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet50-19c8e357.pth',model_dir='./pretrained')
         for k in loaded_state_dict:
             if k in state:
                 state[k] = loaded_state_dict[k]
@@ -160,7 +160,7 @@ def resnet34_feature(pretrained=True):
 
     if pretrained:
         state = rnet34.state_dict()
-        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet34-333f7ec4.pth',model_dir='/home/pxm/pretrained')
+        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet34-333f7ec4.pth',model_dir='./pretrained')
         for k in loaded_state_dict:
             if k in state:
                 state[k] = loaded_state_dict[k]
@@ -177,7 +177,7 @@ def resnet18_feature(pretrained=True, **kwargs):
     rnet18 = ResNet(BasicBlock, [2, 2, 2], **kwargs)
     if pretrained:
         state = rnet18.state_dict()
-        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet18-5c106cde.pth',model_dir='/home/pxm/pretrained')
+        loaded_state_dict = model_zoo.load_url('https://download.pytorch.org/models/resnet18-5c106cde.pth',model_dir='./pretrained')
         for k in loaded_state_dict:
             if k in state:
                 state[k] = loaded_state_dict[k]
