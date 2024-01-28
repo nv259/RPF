@@ -52,7 +52,7 @@ def main(args, cfg):
     if args.attr is not None:
         attr = cfg.DATA.ATTRIBUTES.NAME.index(args.attr)
 
-    idxs, feats = create_collections(
+    create_collections(
         model,  
         test_candidate_loader, 
         gt, 

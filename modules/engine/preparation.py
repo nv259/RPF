@@ -28,8 +28,8 @@ def create_collections(
     for i, attr in enumerate(attrs):
         print(c_idxs[i].shape)
         if c_idxs[i].shape[0] > 0:
-            dump(c_feats[i], './c_feats_' + str(i))
-            dump(c_idxs[i], './c_idxs_' + str(i))
+            dump(c_feats[i], 'collections/c_feats_' + str(i) + '.joblib')
+            dump(c_idxs[i], 'collections/c_idxs_' + str(i) + '.joblib')
 
 def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6, attr=None):
     feats = []

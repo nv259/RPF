@@ -129,7 +129,7 @@ def main(args, cfg, k=50):
     feature = extractor(x, a).cpu().numpy()
     
     # load collection
-    collection_id = joblib.load("collections/c_idxs.npy")
+    collection_id = joblib.load("collections/c_idxs" + str(attr_idx) + ".joblib")
     with h5py.File("collections/data.h5", 'r') as file:
         collection = file["attr" + str(attr_idx)][...]
     

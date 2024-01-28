@@ -7,10 +7,10 @@ def load_collections(attr_ids):
         attr_ids = [attr_ids]
     
     collections = []
-    collection_id = joblib.load("collections/c_idxs.npy")
+    collection_id = joblib.load("collections/c_idxs" + + str(attr_id) + ".joblib")
      
     for attr_id in attr_ids:
-        collection = joblib.load("collections/c_feats_" + str(attr_id) + ".npy")
+        collection = joblib.load("collections/c_feats_" + str(attr_id) + ".joblib")
         collections.append(collection)
          
     return collection_id, collections
