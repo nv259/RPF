@@ -57,7 +57,7 @@ def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
     with tqdm(total=len(data_loader)) as bar:
         cnt = 0
         for idx, batch in enumerate(data_loader):
-            x, a, v = batch#x=index of 
+            x, bidxs, a, v = batch#x=index of 
             # print("eval a shape",a.shape)
             a = a.to(device)
             
@@ -118,18 +118,16 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
             shape:  q
     '''
     can = candidates
-    scorer = APScorer(candidates.shape[0])#k=c
-    # similarity matrix
-    simmat = np.matmul(queries, candidates.T)#qxc
+    scorer = APScorer(candidates.shape[0])
 
     start_time = time.time()
     ap_sum = 0
-    for q in range(simmat.shape[0]):#第q行
-        sim = simmat[q]
-        index = np.argsort(sim)[::-1][:k]
+    for i in range(len(queries)):
+        dists = np.linalg.norm(candidates - queries[i], axis=1) 
+        ids = np.argsort(dists)[:k]
         sorted_labels = []
-        for i in range(index.shape[0]):
-            if c_values[index[i]] == q_values[q]:
+        for j in range(len(ids)):
+            if c_values[ids[j]] == q_values[i]:
                 sorted_labels.append(1)
             else:
                 sorted_labels.append(0)
@@ -137,7 +135,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
         ap = scorer.score(sorted_labels)
         ap_sum += ap
 
-    mAP = ap_sum / simmat.shape[0]
+    mAP = ap_sum / len(queries)
 
     print('None:', mAP)
     finish_time = time.time()
