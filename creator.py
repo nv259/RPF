@@ -34,7 +34,7 @@ def main(cfg):
     start_epoch=0
     gt = GlobalTransform(cfg)#global stream data process
 
-    test_candidate_loader = build_data(cfg, 'TEST')
+    test_candidate_loader = build_data(cfg, 'TEST', query_loader=False)
 
     path = './runs/FashionAI_s2/model_best.pth.tar'
     if os.path.isfile(path):

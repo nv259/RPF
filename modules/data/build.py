@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 from .datasets import BaseDataSet, tripletInfo_collate_fn, image_collate_fn
 from .samplers import TripletInfoNceSampler, ImageSampler
 
-def build_data(cfg, test_on=None):
+def build_data(cfg, test_on=None, query_loader=True):
 	if test_on is None:
 		train_set = BaseDataSet(cfg, 'TRAIN')
 		valid_set = BaseDataSet(cfg, 'VALID')
@@ -33,6 +33,7 @@ def build_data(cfg, test_on=None):
 	else:
 		test_set = BaseDataSet(cfg, test_on)
 
+
 		test_candidate_loader = DataLoader(
 			test_set,
 			collate_fn=image_collate_fn,
@@ -41,4 +42,15 @@ def build_data(cfg, test_on=None):
 			pin_memory=True
 		)
 
-		return test_candidate_loader
+		if query_loader == True:      
+			test_query_loader = DataLoader(
+				test_set,
+				collate_fn=image_collate_fn,
+				batch_sampler=ImageSampler(cfg, cfg.DATA.GROUNDTRUTH.QUERY[test_on]),
+				num_workers=cfg.DATA.NUM_WORKERS,
+				pin_memory=True
+			)
+
+			return test_query_loader, test_candidate_loader
+		else:
+			return test_candidate_loader

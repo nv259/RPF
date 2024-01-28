@@ -29,7 +29,7 @@ class BaseDataSet(Dataset):
 
         img = self.image_loader(path)
 
-        return (img,) + index[0:]
+        return (img,) + index[1:]
 
 def tripletInfo_collate_fn(batch):
     xpn= batch
@@ -52,9 +52,9 @@ def tripletInfo_collate_fn(batch):
 
 def image_collate_fn(batch):
     # print(batch)
-    x, idxs, a, v = zip(*batch)
+    x, a, v = zip(*batch)
 
     a = torch.LongTensor(a)
     v = torch.LongTensor(v)
 
-    return x, idxs, a, v
+    return x, a, v
