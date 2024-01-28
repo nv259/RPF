@@ -122,6 +122,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     # similarity matrix
     simmat = np.matmul(queries, candidates.T)#qxc
 
+    start_time = time.time()
     ap_sum = 0
     for q in range(simmat.shape[0]):#第q行
         sim = simmat[q]
@@ -139,6 +140,8 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     mAP = ap_sum / simmat.shape[0]
 
     print('None:', mAP)
+    finish_time = time.time()
+    print("Time:", finish_time - start_time)
 
     candidates = can
     kdtree = KDTree(candidates)
@@ -146,7 +149,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     candidates = can
     lsh = LSHash(10, candidates.shape[1], 3)
     for i in range(len(candidates)):
-        lsh.index(candidates[i], extra_data=i)
+        lsh.index(candidates[i], extra_data=str(i))
 
     candidates = can
     index_flat = faiss.IndexFlatL2(candidates.shape[1])
@@ -156,6 +159,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     index_flat.train(candidates) 
     index_flat.add(candidates)
 
+    start_time = time.time()
     ap_sum = 0
     for i in range(len(queries)):
         dists, ids = kdtree.query(np.array([queries[i]]), k = k)
@@ -172,11 +176,14 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
 
     mAP = ap_sum / len(queries)
     print('KDTree:', mAP)
+    finish_time = time.time()
+    print("Time:", finish_time - start_time)
 
+    start_time = time.time()
     ap_sum = 0
     for i in range(len(queries)):
         neighbors = lsh.query(queries[i], num_results=k, distance_func='euclidean') 
-        ids = [neighbor[0][1] for neighbor in neighbors]
+        ids = [int(neighbor[0][1]) for neighbor in neighbors]
         dists = [neighbor[1] for neighbor in neighbors]
         sorted_labels = []
         for j in range(len(ids)):
@@ -190,7 +197,10 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
 
     mAP = ap_sum / len(queries)
     print('LSH:', mAP)
+    finish_time = time.time()
+    print("Time:", finish_time - start_time)
 
+    start_time = time.time()
     ap_sum = 0
     for i in range(len(queries)):
         dists, ids = index_flat.search(np.array([queries[i]]), k)
@@ -207,6 +217,8 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
 
     mAP = ap_sum / len(queries)
     print('Faiss:', mAP)
+    finish_time = time.time()
+    print("Time:", finish_time - start_time)
 
 def main(cfg):
     logger = setup_logger(name=cfg.NAME, level=cfg.LOGGER.LEVEL, stream=cfg.LOGGER.STREAM)

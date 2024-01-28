@@ -9,6 +9,7 @@ def _image_reader(path):
 
 class BaseDataSet(Dataset):
     def __init__(self, cfg, split):
+        self.split = split
         self.root_path = os.path.join(cfg.DATA.BASE_PATH, cfg.DATA.DATASET)#/home/data/datasets/FGdatas/FashionAI
 
         self.fnamelist = []
@@ -29,7 +30,10 @@ class BaseDataSet(Dataset):
 
         img = self.image_loader(path)
 
-        return (img,) + index[1:]
+        if self.split != 'TEST':
+            return (img,) + index[1:]
+
+        return (img,) + index[0:]
 
 def tripletInfo_collate_fn(batch):
     xpn= batch
@@ -50,11 +54,18 @@ def tripletInfo_collate_fn(batch):
 
     return x, p, n, torch.LongTensor(x_a), flag, de_flag
 
-def image_collate_fn(batch):
-    # print(batch)
-    x, a, v = zip(*batch)
+def image_collate_fn(batch, data='VALID'):
+    if len(batch[0]) == 3:
+        x, a, v = zip(*batch)
+
+        a = torch.LongTensor(a)
+        v = torch.LongTensor(v)
+
+        return x, a, v
+
+    x, idx, a, v = zip(*batch)
 
     a = torch.LongTensor(a)
     v = torch.LongTensor(v)
 
-    return x, a, v
+    return x, idx, a, v

@@ -21,7 +21,7 @@ def set_seed(seed=1234):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
-def main(cfg):
+def main(args, cfg):
     logger = setup_logger(name=cfg.NAME, level=cfg.LOGGER.LEVEL, stream=cfg.LOGGER.STREAM)
     device = torch.device(cfg.DEVICE)
 
@@ -48,7 +48,11 @@ def main(cfg):
     x = np.load("pretrained/imagenet21k_ViT-B_16.npz")
     model.load_from(x)
 
-    idxs, feats = create_collections(
+    attr = None
+    if args.attr is not None:
+        attr = cfg.DATA.ATTRIBUTES.NAME.index(args.attr)
+
+    create_collections(
         model,  
         test_candidate_loader, 
         gt, 
@@ -57,13 +61,25 @@ def main(cfg):
         device, 
         logger, 
         epoch=-1, 
-        beta=cfg.SOLVER.BETA
+        beta=cfg.SOLVER.BETA,
+        attr=attr
     )
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--attr", default=None,
+        type=str, choices=[None, "skirt_length", "sleeve_length", "coat_length", "pant_lenght", "collar_design", "lapel_design", "neckline_design", "neck_design"],
+        help="specific attribute"
+    )
+
+    return parser.parse_args()
 
 if __name__ == "__main__":
     torch.set_num_threads(1)
+    args = parse_args()
     cfg.merge_from_file('./config/FashionAI/FashionAI.yaml')
     cfg.merge_from_file('./config/FashionAI/s2.yaml')
     cfg.freeze()
     set_seed()
-    main(cfg)
+    main(args, cfg)
