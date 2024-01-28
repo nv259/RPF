@@ -100,8 +100,8 @@ class RPF(nn.Module):
             posemb = np2th(weights["Transformer/posembed_input/pos_embedding"])
             posemb_new = self.choices['local']['basenet'].embeddings.position_embeddings
             if posemb.size() == posemb_new.size():
-                print("load_pretrained: posemb_new=posemb")
-                logger.info("load_pretrained: posemb_new=posemb")
+                #print("load_pretrained: posemb_new=posemb")
+                #logger.info("load_pretrained: posemb_new=posemb")
                 self.choices['local']['basenet'].embeddings.position_embeddings.copy_(posemb)       
             for bname, block in self.choices['local']['basenet'].encoder.named_children():
                 if bname.startswith('part') == False:
@@ -214,7 +214,7 @@ class Attention(nn.Module):
 class CrossAttention(nn.Module):
     def __init__(self, num_heads,embed_size,att_dropout_rate):
         super(CrossAttention, self).__init__()
-        print("head:"+str(num_heads))
+        # print("head:"+str(num_heads))
         self.num_attention_heads = num_heads #12
         self.attention_head_size = int(embed_size / self.num_attention_heads)#64
         self.all_head_size = self.num_attention_heads * self.attention_head_size#64*12
