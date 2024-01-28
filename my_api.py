@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+import uvicorn
 from pydantic import BaseModel
 
 from inference import FeatureExtractor
@@ -20,8 +21,8 @@ from tqdm.auto import tqdm
 
 class InputQuery(BaseModel):
     img_path:str
-    attr:str
-    lsis:str = 'faiss'
+    attrs:list
+    # lsis:str = 'faiss'
     
 
 print("LOADING CONFIG", end=' ')
@@ -49,21 +50,21 @@ lshs = []
 index_flats = []
 
 for i in tqdm(range(cfg.DATA.NUM_ATTRIBUTES), desc=str(i)):
-    kdtree = KDTree(collection)
+    # kdtree = KDTree(collection)
 
-    lsh = LSHash(10, collection.shape[1], 3)
-    for i in range(len(collection)):
-        lsh.index(collection[i], extra_data=i)
+    # lsh = LSHash(10, collection.shape[1], 3)
+    # for i in range(len(collection)):
+    #     lsh.index(collection[i], extra_data=i)
 
     index_flat = faiss.IndexFlatL2(collection.shape[1])
-    if faiss.get_num_gpus() > 0:
-        res = faiss.StandardGpuResources()
-        index_flat = faiss.index_cpu_to_gpu(res, 0, index_flat)
+    # if faiss.get_num_gpus() > 0:
+    #     res = faiss.StandardGpuResources()
+    #     index_flat = faiss.index_cpu_to_gpu(res, 0, index_flat)
     index_flat.train(collection) 
     index_flat.add(collection)
     
-    kdtrees.append(kdtree)
-    lshs.append(lsh)
+    # kdtrees.append(kdtree)
+    # lshs.append(lsh)
     index_flats.append(index_flat)
 
 print("CONSTRUCTING LSIS --- DONE!")
@@ -80,24 +81,31 @@ async def submit(input_query: InputQuery, k=50):
     start_time = time.time()
 
     x = Image.open(input_query.img_path)
-    a = torch.tensor(input_query.attr)    
+    attrs = torch.tensor(input_query.attrs)    
     
-    feature = extractor(x, a).cpu().numpy()
+    multi_dists = []
+    multi_ids = []
+     
+    for attr_idx, use_attr in enumerate(attrs):
+        if use_attr == True: 
+            # extract feature corresponding to given attribute
+            feature = extractor(x, attr_idx).cpu().numpy()
+
+            # calculating dists w.r.t current attribute
+            dists, ids = index_flats[attr_idx].search(feature, k)
+            multi_dists.append(dists)
+            multi_ids.append(ids)
     
-    if input_query.lsis == 'kdtree':
-        dists, ids = kdtree.query(feature, k=k)
-    elif input_query.lsis == 'lsh':
-        neighbors = lsh.query(feature.flatten(), num_results=k, distance_func='euclidean') 
-        ids = [neighbor[0][1] for neighbor in neighbors]
-        dists = [neighbor[1] for neighbor in neighbors]
-    elif input_query.lsis == 'faiss':
-        dists, ids = index_flat.search(feature, k)
-    else:
-        dists = np.linalg.norm(collections[a] - feature, axis=1) 
-        ids = np.argsort(dists)[:k]
-        dists = dists[ids]
+    print(len(multi_dists)) 
+    print(len(multi_ids))
     
+     
     finish_time = time.time() 
     print("execution time", finish_time - start_time)
     
-    return {"ids": ids, "dists": dists}
+    return finish_time - start_time
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=8000)
+    
