@@ -11,3 +11,5 @@ lshashpy3==0.0.9
 scikit-learn==1.0.2
 h5py==3.8.0
 faiss-gpu
+fastapi
+uvicorn
