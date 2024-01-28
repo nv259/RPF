@@ -3,6 +3,7 @@ import time
 
 import torch
 from torch import nn
+from inference import FeatureExtractor
 
 from PIL import Image
 
@@ -21,65 +22,6 @@ from modules.data.transforms import GlobalTransform, LocalTransform
 import joblib
 
 import random
-
-
-class FeatureExtractor(nn.Module):
-    def __init__(self, cfg, verbose=False):
-        super().__init__()
-        if verbose:
-            print("BUILDING MODEL")
-        self.model = build_model(cfg)
-        if verbose: 
-            print("DEVICE:", cfg.DEVICE)
-        self.device = torch.device(cfg.DEVICE) 
-        self.model.to(self.device)
-        
-        # load model state dict
-        if verbose:
-            print("LOADING CHECKPOINT:", cfg.MODEL.CHECKPOINT)
-        checkpoint = torch.load(cfg.MODEL.CHECKPOINT, map_location="cpu")
-        self.model.load_state_dict(checkpoint["model"])
-        
-        # load ViT pretrained
-        if verbose: 
-            print("LOADING ViT PRETRAINED TO MODEL:", cfg.MODEL.VIT_PRETRAINED) 
-        vit_pretrained = np.load(cfg.MODEL.VIT_PRETRAINED)
-        self.model.load_from(vit_pretrained)
-       
-        if verbose:
-            print("BUILDING GLOBAL/LOCAL TRANSFORM")
-        self.gt = GlobalTransform(cfg)
-        self.lt = LocalTransform(cfg)
-        
-    def forward(self, x, a, beta=0.6):
-        a = a.to(self.device)
-        a = a.unsqueeze(dim=0)
-        
-        gx = self.gt(x)
-        gx = gx.to(self.device)
-        gx = gx.unsqueeze(dim=0)
-        
-        with torch.no_grad():
-            g_feat, _, attmap = self.model(gx, a, level='global')
-            
-        attmap = attmap.cpu().numpy()
-        
-        lx = self.lt(x, attmap)
-        lx = lx.to(self.device)
-        lx = lx.unsqueeze(dim=0)
-        
-        with torch.no_grad():
-            l_feat = self.model(lx, a, level='local')
-            
-        feature = torch.cat((torch.sqrt(torch.tensor(beta)) * nn.functional.normalize(g_feat, p=2, dim=1),
-                             torch.sqrt(torch.tensor(1-beta)) * nn.functional.normalize(l_feat, p=2, dim=1)), dim=1)
-        
-        return feature
-
-
-##### GLOBAL VARIABLES
-LSIS = "faiss"
-# extractor = FeatureExtractor(cfg)
 
 
 def set_seed(seed=1234):
