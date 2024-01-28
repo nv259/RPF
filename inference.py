@@ -136,7 +136,7 @@ def main(args, cfg, k=50):
     kdtree = KDTree(collection)
     lsh = LSHash(10, collection.shape[1], 3)
     for i in range(len(collection)):
-        lsh.index(collection[i], extra_data=i)
+        lsh.index(collection[i], extra_data=str(i))
     index_flat = faiss.IndexFlatL2(collection.shape[1])
     if faiss.get_num_gpus() > 0:
         res = faiss.StandardGpuResources()
@@ -152,12 +152,14 @@ def main(args, cfg, k=50):
         ids = np.argsort(dists)[:k]
     if args.lsis == 'kdtree':
         dists, ids = kdtree.query(feature, k=k)
+        ids = ids[0]
     if args.lsis == 'lsh':
         neighbors = lsh.query(feature.flatten(), num_results=k, distance_func='euclidean') 
-        ids = [neighbor[0][1] for neighbor in neighbors]
+        ids = [int(neighbor[0][1]) for neighbor in neighbors]
         dists = [neighbor[1] for neighbor in neighbors]
     if args.lsis == 'faiss':
         dists, ids = index_flat.search(feature, k) 
+        ids = ids[0]
      
     finish_time = time.time()
     print("Retrieval time:", finish_time - start_time)
