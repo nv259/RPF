@@ -146,7 +146,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     candidates = can
     lsh = LSHash(10, candidates.shape[1], 3)
     for i in range(len(candidates)):
-        lsh.index(candidates[i], extra_data=i)
+        lsh.index(candidates[i], extra_data=str(i))
 
     candidates = can
     index_flat = faiss.IndexFlatL2(candidates.shape[1])
@@ -176,7 +176,7 @@ def mean_average_precision(queries, candidates, q_values, c_values, k = 50):
     ap_sum = 0
     for i in range(len(queries)):
         neighbors = lsh.query(queries[i], num_results=k, distance_func='euclidean') 
-        ids = [neighbor[0][1] for neighbor in neighbors]
+        ids = [int(neighbor[0][1]) for neighbor in neighbors]
         dists = [neighbor[1] for neighbor in neighbors]
         sorted_labels = []
         for j in range(len(ids)):
