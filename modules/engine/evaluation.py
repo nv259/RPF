@@ -71,7 +71,7 @@ def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
     with tqdm(total=len(data_loader)) as bar:
         cnt = 0
         for idx, batch in enumerate(data_loader):
-            x, a, v = batch#x=index of 
+            x, bidxs, a, v = batch#x=index of 
             # print("eval a shape",a.shape)
             a = a.to(device)
             

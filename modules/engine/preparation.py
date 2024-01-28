@@ -19,18 +19,19 @@ def create_collections(
     device,
     logger,
     epoch=-1,
-    beta=0.6
+    beta=0.6,
+    attr=None
 ):
     model.eval()
 
-    c_idxs, c_feats = extract_features(model, candidate_loader, gt, lt, device, len(attrs), beta=beta)
+    c_idxs, c_feats = extract_features(model, candidate_loader, gt, lt, device, len(attrs), beta=beta, attr=attr)
     for i, attr in enumerate(attrs):
         print(c_idxs[i].shape)
         if c_idxs[i].shape[0] > 0:
-            dump(c_idxs[i], './c_idxs_' + str(i))
             dump(c_feats[i], './c_feats_' + str(i))
+            dump(c_idxs[i], './c_idxs_' + str(i))
 
-def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
+def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6, attr=None):
     feats = []
     indices = [[] for _ in range(n_attrs)]
     idxs = []
@@ -39,6 +40,10 @@ def extract_features(model, data_loader, gt, lt, device, n_attrs, beta=0.6):
         cnt = 0
         for idx, batch in enumerate(data_loader):
             x, bidxs, a, v = batch
+
+            if attr is not None:
+                a = torch.LongTensor([attr for _ in range(len(x))])
+
             a = a.to(device)
 
             out= process_batch(model, x, a, gt, lt, device, beta=beta)
@@ -74,7 +79,6 @@ def process_batch(model, x, a, gt, lt, device, beta=0.6):
     with torch.no_grad():
         l_feats = model(lx, a, level='local')
     
-    print(g_feats.shape, l_feats.shape)
     out = torch.cat((torch.sqrt(torch.tensor(beta)) * nn.functional.normalize(g_feats, p=2, dim=1),
             torch.sqrt(torch.tensor(1-beta)) * nn.functional.normalize(l_feats, p=2, dim=1)), dim=1)
 
