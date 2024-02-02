@@ -27,7 +27,7 @@ def load_collections(attr_ids):
 
 
 def collections_to_h5py(n_attrs=8):
-    collections_id, collections = load_collections([0, 1, 2, 3, 4, 5, 6, 7])
+    collections_id, collections = load_collections([i for i in range(8)])
     
     with h5py.File("collections/data.h5", 'w') as file:
         for i in range(n_attrs): 
