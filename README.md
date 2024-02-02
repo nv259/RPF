@@ -2,9 +2,21 @@
 This is a repository contains the implementation of API based on SIGIR'23 full paper [From Region to Patch: Attribute-Aware Foreground-Background Contrastive Learning for Fine-Grained Fashion Retrieval](https://doi.org/10.48550/arXiv.2305.10260).
 ![network structure](imgs/myframework.jpg)
 
+## Abstract
+Attribute-specific fashion retrieval (ASFR), a nuanced task in content-based image retrieval, focuses on identifying specific attributes and details in fashion items from images. Addressing this complex challenge, in this report, we introduce a novel Fine-grained Fashion Retrieval system, leveraging the Region-to-Patch Framework (RPF) enhanced with large-scale search techniques including K-D tree, LSH and FAISS. Our system uniquely addresses the challenge of attribute-specific fashion retrieval by integrating dual modal inputs: an image query and a text-based attribute description. Furthermore, we present a comprehensive re-evaluation of our system against the original RPF and other state-of-the-art methods on a benchmark dataset of 180k fashion images.
+
+## Team Members
+| **Full Name**      | **MSSV** | **Role**   |
+| :----------------: | :------: | :--------: |
+| *Nguyen Viet Nhat*   | *21520378* | *Leader* |
+| Ha Van Hoang       | 215200xx | Member     |
+| Nguyen Quoc Truong | 2152xxxx | Member     |
+| Vo Thi Phuong Anh  | 2152xxxx | Member     | 
+
 ## Table of Contents
 
 * [Environments](#environments)
+* [System](#system)
 * [Datasets](#datasets)
 * [Configuration](#configuration)
 * [Training](#training)
@@ -27,6 +39,31 @@ Install other required packages by
 ```sh
 pip install -r requirements.txt
 ```
+
+## System
+- **Input**: 
+  - Fashion image (*visual data*)
+  - Attributes (*textual data*) 
+
+- **Output**:
+  - Ranked list of fashion items (expressed by image_id in database) that relevant to attributes in query image.
+
+- **Example**:
+```python
+Input:
+{
+  "img_path": "path/to/query/image",
+  "attrs": "Độ dài tay; Thiết kế cổ áo; Độ dài váy"
+}
+
+Output:
+{
+  "ids": [ 124, 768, 1243, 8940, ... ],
+  "similarities": [ 0.94295, 0.87365, 0.7645, 0.652, ... ],
+  "retrieval_times": 0.566
+}
+```
+
 
 ## Datasets
 In this API, we use only two fashion related datasets, i.e., FashionAI and DeepFashion. The former is used for training (train, dev) and as collection (test 14400 images), while the latter is used for evaluating system. Please download and put them in the corresponding folders.
@@ -80,7 +117,12 @@ Pre-trained ResNet model for Region-aware Branch is auto downloaded and put into
 Download checkpoint for FashionAI models and place in `runs/FashionAI_s2`
 - RPF on FashionAI: [released_model](https://drive.google.com/file/d/1pIJ2REblm2eXNq81vyhAj9bs8y1EzNvR/view?usp=sharing)
 
-In this API, we implemented the multi-attributes version for input query. Therefore, we need to download the [collections](), extract it and put into `collections/multi_attrs/` directory. Single-attribute version is smaller and quicker but lack of practical, so we omit it, but if you concern it, feel free to contact 21520378@gm.uit.edu.vn
+In this API, we implemented the multi-attributes version for input query. Therefore, we need to download the [collections](https://onedrive.live.com/?authkey=%21ALkPPaOECy0QoUM&id=406CC5EDDBB3A996%2119523&cid=406CC5EDDBB3A996&parId=root&parQt=sharedby&o=OneUp), extract it and put into `collections/multi_attrs/` directory. Single-attribute version is smaller and quicker but lack of practical, so we omit it, but if you concern it, feel free to contact 21520378@gm.uit.edu.vn
+
+API is hosted at `0.0.0.0:8000` and receive HTTP POST at `0.0.0.0:8000/submit`
+```sh
+uvicorn my_api:app *or* python my_api.py
+```
 
 ### Performance 
 Expected MAP on FashionAI Dataset
