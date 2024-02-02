@@ -1,14 +1,17 @@
 import math
 from fastapi import FastAPI
 import uvicorn
-from pydantic import BaseModel
 
+from pydantic import BaseModel
 from inference import FeatureExtractor
 from modules.config import cfg
+from sentence_transformers  import SentenceTransformer, util
+import torch
+
+from helper import split_sentences
 
 import joblib
 import numpy as np 
-import torch
 from PIL import Image
 
 from sklearn.neighbors import KDTree
@@ -33,6 +36,8 @@ class APIResponse(BaseModel):
     retrieval_time:float
     
     
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
 print("LOADING CONFIG", end=' ')
 cfg.merge_from_file('./config/FashionAI/FashionAI.yaml')
 cfg.merge_from_file('./config/FashionAI/s2.yaml')
@@ -41,6 +46,12 @@ print("--- DONE!\n")
 
 print("BUILDING MODEL", end=' ')
 extractor = FeatureExtractor(cfg)
+sentence_model = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v2')
+print("--- DONE!\n")
+
+print("CALCULATING ATTRIBUTES EMBEDDINGS", end=' ')
+attrs_gold = ['skirt', 'sleeve', 'coat', 'pant', 'collar', 'lapel', 'neckline', 'neck'] # cfg.DATA.ATTRIBUTES.NAME
+attrs_gold_emb = sentence_model.encode(attrs_gold, convert_to_tensor=True, device=device, show_progress_bar=True)
 print("--- DONE!\n")
 
 print("LOADING DATABASE", end=' ')
@@ -88,8 +99,8 @@ async def home():
 
 @app.post("/submit")
 async def submit(input_query: InputQuery, k=50):
-    print(input_query)
-    
+    # print(input_query)
+
     start_time = time.time()
     
     k= int(k)
@@ -97,7 +108,17 @@ async def submit(input_query: InputQuery, k=50):
     
     multi_dists = []
     multi_ids = []
-     
+    
+    attrs_list = split_sentences(input_query.attrs) 
+    input_query.attrs = [0] * 8
+    input_attrs_emb = sentence_model.encode(attrs_list, convert_to_tensor=True)
+    
+    # map attr to attrs_gold
+    for attr_emb in input_attrs_emb:
+        cos_sim = util.pytorch_cos_sim(attr_emb, attrs_gold_emb)
+        input_attrs_emb[cos_sim.argmax().item()] = 1
+    
+    # retrieve items for each attribute
     for attr_idx, use_attr in enumerate(input_query.attrs):
         if use_attr == True: 
             # extract feature corresponding to given attribute
@@ -108,8 +129,9 @@ async def submit(input_query: InputQuery, k=50):
             multi_dists.append(dists.squeeze())
             multi_ids.append(collection_id[ids].squeeze())
     
+    # rerank items by combining multiple attributes  
     final_ranked_list = combine_multi_attrs(multi_ids, multi_dists)
-     
+    
     finish_time = time.time() 
     retrieval_time = finish_time - start_time
     
