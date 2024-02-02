@@ -88,6 +88,8 @@ async def home():
 
 @app.post("/submit")
 async def submit(input_query: InputQuery, k=50):
+    print(input_query)
+    
     start_time = time.time()
     
     k= int(k)
