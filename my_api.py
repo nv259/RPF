@@ -1,4 +1,3 @@
-import math
 from fastapi import FastAPI
 import uvicorn
 
@@ -11,11 +10,10 @@ import torch
 from helper import split_sentences
 
 import joblib
-import numpy as np 
 from PIL import Image
 
-from sklearn.neighbors import KDTree
-from lshashpy3 import LSHash
+# from sklearn.neighbors import KDTree
+# from lshashpy3 import LSHash
 import faiss
 import h5py
 
@@ -26,7 +24,7 @@ from collections import defaultdict
 
 class InputQuery(BaseModel):
     img_path:str
-    attrs:list
+    attrs:str
     # lsis:str = 'faiss'
     
     
@@ -57,7 +55,7 @@ print("--- DONE!\n")
 print("LOADING DATABASE", end=' ')
 collections = []
 # collections_id = []
-collection_id = joblib.load("collections/multi_attrs/c_idxs.joblib")
+collection_id = joblib.load("collections/multi_attrs/c_idxs.npy")
 
 with h5py.File("collections/multi_attrs/data.h5", 'r') as data:
     for i in range(cfg.DATA.NUM_ATTRIBUTES):
@@ -99,8 +97,6 @@ async def home():
 
 @app.post("/submit")
 async def submit(input_query: InputQuery, k=50):
-    # print(input_query)
-
     start_time = time.time()
     
     k= int(k)
@@ -116,7 +112,8 @@ async def submit(input_query: InputQuery, k=50):
     # map attr to attrs_gold
     for attr_emb in input_attrs_emb:
         cos_sim = util.pytorch_cos_sim(attr_emb, attrs_gold_emb)
-        input_attrs_emb[cos_sim.argmax().item()] = 1
+        # print(cos_sim.argmax().item())
+        input_query.attrs[cos_sim.argmax().item()] = 1
     
     # retrieve items for each attribute
     for attr_idx, use_attr in enumerate(input_query.attrs):
