@@ -3,6 +3,8 @@ from transformers import Trainer, TrainingArguments
 from transformers import DataCollatorForLanguageModeling
 from torch.utils.data import DataLoader
 
+import re
+
 import pandas as pd
 import h5py
 import joblib
@@ -32,6 +34,18 @@ def collections_to_h5py(n_attrs=8):
             file.create_dataset('attr' + str(i), data=collections[i])
             
 # collections_to_h5py()
+
+
+def split_sentences(text):
+    # Extend the pattern to include the specified special characters
+    # Escape special characters that have meanings in regex with a backslash
+    pattern = r'\s+and\s+|\s+or\s+|\s+with\s+|[+;,\'"-]'
+    
+    # Use re.split to split the text based on the pattern
+    sentences = re.split(pattern, text)
+    
+    return sentences
+
 
 def finetune_pretrained(pretrained_path, data_path):
     # TODO: generalize for other dataset beside FashionConversationTwitter
