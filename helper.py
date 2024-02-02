@@ -1,3 +1,9 @@
+from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import Trainer, TrainingArguments
+from transformers import DataCollatorForLanguageModeling
+from torch.utils.data import DataLoader
+
+import pandas as pd
 import h5py
 import joblib
 
@@ -25,4 +31,38 @@ def collections_to_h5py(n_attrs=8):
         for i in range(n_attrs): 
             file.create_dataset('attr' + str(i), data=collections[i])
             
-collections_to_h5py()
+# collections_to_h5py()
+
+def finetune_pretrained(pretrained_path, data_path):
+    # TODO: generalize for other dataset beside FashionConversationTwitter
+    # 1) Load dataset
+    dataset = pd.read_csv(data_path)
+    texts = dataset['Caption'].fillna('') + ' ' + dataset['Hashtags'].fillna('')
+    
+    # 2) Load tokenizer, model, data collator
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_path)
+    encodings = tokenizer(texts.tolist(), truncation=True, padding='max_length', max_length=128, return_tensors='pt')
+    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
+    model = AutoModelForMaskedLM.from_pretrained(pretrained_path)
+    
+    # 3) Set up training
+    training_args = TrainingArguments(
+        output_dir = './finetuned-results',
+        num_train_epochs=2,
+        per_device_train_batch_size=8,
+        save_steps=10_000,
+        save_total_limit=2,
+    )
+
+    trainer = Trainer(
+        model=model, 
+        args=training_args,
+        data_collator=data_collator,
+        train_dataset=encodings
+    )
+    
+    # 4) Train and save model
+    trainer.train()
+    model.save_pretrained(pretrained_path)
+    
+# finetune_pretrained('sentence-transformers/distiluse-base-multilingual-cased-v2')

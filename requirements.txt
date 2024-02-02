@@ -13,3 +13,6 @@ h5py==3.8.0
 faiss-gpu
 fastapi
 uvicorn
+transformers
+sentence-transformers
+pandas
