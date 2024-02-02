@@ -46,7 +46,7 @@ print("--- DONE!\n")
 print("LOADING DATABASE", end=' ')
 collections = []
 # collections_id = []
-collection_id = joblib.load("collections/multi_attrs/c_idxs.npy")
+collection_id = joblib.load("collections/multi_attrs/c_idxs.joblib")
 
 with h5py.File("collections/multi_attrs/data.h5", 'r') as data:
     for i in range(cfg.DATA.NUM_ATTRIBUTES):
