@@ -33,7 +33,7 @@ app.post('/submit', upload.single("image"), async (req, res) => {
     "attrs": req.body.attributes
   }
   await request.post(
-    uri="http://localhost:8001/submit",
+    uri="http://localhost:8000/submit",
     { json: data },
     function (error, response, body) {
       console.log(body);
