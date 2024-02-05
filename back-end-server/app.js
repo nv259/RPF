@@ -43,6 +43,15 @@ app.post('/submit', upload.single("image"), async (req, res) => {
   res.json({"message": "image uploaded successfully!"});
 });
 
+axios.post("http://localhost:8000/submit", data).then((response) => 
+{
+  console.log(response);
+  res.send(response);
+}
+);
+
+
+
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
