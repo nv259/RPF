@@ -131,7 +131,7 @@ Expected mAP for top 50 on FashionAI Dataset
 |None|71.7552|62.4961|62.5449|71.9812|75.3120|72.7903|70.1916|66.9725|69.2555|
 |KDTree|71.7552|62.4961|62.5434|71.9815|75.3120|72.7903|70.1916|66.9725|69.2553|
 |LSH|69.9015|61.0136|63.5678|70.6794|74.1572|71.4406|67.7121|67.4673|68.2424|
-|Faiss|71.7552|62.4961|62.5442|71.9812|75.3120|72.7903|70.1916|66.9725|69.2554|
+|FAISS|71.7552|62.4961|62.5442|71.9812|75.3120|72.7903|70.1916|66.9725|69.2554|
 
 Expected time (s) for top 50 on FashionAI Dataset
 |      LSIS      |skirt length| sleeve length| coat length |pant length |collar design| lapel design| neckline design| neck design| overall|
@@ -147,7 +147,7 @@ Expected mAP for top 50 on DeepFashion Dataset
 |None|23.4559|15.3517|23.4140|14.7252|10.6022|17.5098|
 |KDTree|23.4559|15.3517|23.4140|14.7252|10.6022|17.5098|
 |LSH|24.8087|14.2795|22.2055|14.4342|9.1695|16.9795|
-|Faiss|23.4559|15.3518|23.4140|14.7252|10.6022|17.5098|
+|FAISS|23.4559|15.3518|23.4140|14.7252|10.6022|17.5098|
 
 Expected time (s) for top 50 on DeepFashion Dataset
 |      LSIS      |texture |fabric |shape |part| style |overall|
