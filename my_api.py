@@ -11,6 +11,7 @@ from helper import split_sentences
 
 import joblib
 from PIL import Image
+import urllib.request 
 
 # from sklearn.neighbors import KDTree
 # from lshashpy3 import LSHash
@@ -26,9 +27,11 @@ class InputQuery(BaseModel):
     img_path:str
     attrs:str
     # lsis:str = 'faiss'
+   
+class APIResponse_new(BaseModel):
+    img_paths: list = [str]
     
-    
-class APIResponse(BaseModel):
+class APIResponse_old(BaseModel):
     ids:list = [int]
     similarities:list = [float]
     retrieval_time:float
@@ -96,12 +99,17 @@ async def home():
     return "GROUP 1 - CS336.O11.KHTN"
 
 @app.post("/submit")
-async def submit(input_query: InputQuery, k=50):
+async def submit(input_query: InputQuery, k=14400):
     start_time = time.time()
     
     k= int(k)
-    x = Image.open(input_query.img_path) 
-    
+   
+    urllib.request.urlretrieve( 
+        input_query.img_path, 
+        "imgs/query_image.png") 
+      
+    x = Image.open("imgs/query_image.png") 
+     
     multi_dists = []
     multi_ids = []
     
@@ -128,13 +136,22 @@ async def submit(input_query: InputQuery, k=50):
     
     # rerank items by combining multiple attributes  
     final_ranked_list = combine_multi_attrs(multi_ids, multi_dists)
-    
+
     finish_time = time.time() 
     retrieval_time = finish_time - start_time
     
-    return APIResponse(ids=[int(id) for id in final_ranked_list.keys()], 
-                       similarities=[float(similarity) for similarity in final_ranked_list.values()],
-                       retrieval_time=retrieval_time)
+    with open('data/FashionAI/filenames_test.txt', 'r') as f:
+        filenames = f.readlines()
+
+    filenames = [line.strip('\n') for line in filenames]
+    img_paths = [filenames[int(id)] for id in final_ranked_list.keys()][:50]
+    # print(img_paths[0])
+    
+    return APIResponse_new(img_paths=img_paths)
+    
+    # return APIResponse_old(ids=[int(id) for id in final_ranked_list.keys()], 
+#                       similarities=[float(similarity) for similarity in final_ranked_list.values()],
+#                       retrieval_time=retrieval_time)
 
 
 def combine_multi_attrs(ids, dists):
