@@ -35,8 +35,8 @@ app.post('/submit', upload.single("image"), async (req, res) => {
   }
   await axios.post("http://localhost:8000/submit", data).then((response) => 
   {
-    console.log(response);
-    res.send(response);
+    // console.log(response);
+    res.send(response.data);
   }
   );
   // res.send('Image uploaded successfully!');
