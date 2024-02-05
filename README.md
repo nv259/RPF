@@ -10,8 +10,8 @@ Attribute-specific fashion retrieval (ASFR), a nuanced task in content-based ima
 | :----------------: | :------: | :--------: |
 | *Nguyen Viet Nhat*   | *21520378* | *Leader* |
 | Ha Van Hoang       | 21520033 | Member     |
-| Nguyen Quoc Truong | 2152xxxx | Member     |
-| Vo Thi Phuong Anh  | 2152xxxx | Member     | 
+| Nguyen Quoc Truong | 21521604 | Member     |
+| Vo Thi Phuong Anh  | 21522883 | Member     | 
 
 ## Table of Contents
 
