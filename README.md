@@ -128,17 +128,18 @@ uvicorn my_api:app *or* python my_api.py
 Expected MAP on FashionAI Dataset
 |             |skirt length| sleeve length| coat length |pant length |collar design| lapel design| neckline design| neck design| overall|
 | :---------: | :--: | :--: | :--: | :---: | :---: |:--: | :--: | :---: | :---: |
-|RPF|66.75 |67.86 |59.65| 73.23| 75.72| 73.18 |74.40 |75.01 |70.11|
-
-Expected MAP on DARN Dataset
-|             | clothes category |clothes button |clothes color |clothes length |clothes pattern| clothes shape |collar shape| sleeve length |sleeve shape |overall|
-| :---------: | :--: | :--: | :--: | :---: | :---: |:--: | :--: | :--: | :---: | :---: |
-|RPF|45.18 |54.92 |55.08 |63.51| 57.04| 63.54| 41.20 |86.95| 62.43 |58.80|
+|None| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
+|KDTree| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
+|LSH|?|?|?|?|?|?|?|?|?|
+|Faiss| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
 
 Expected MAP on DeepFashion Dataset
 |             |texture |fabric |shape |part| style |overall|
 | :---------: | :--: | :--: | :--: | :---: | :---: | :---: |
-|RPF| 15.62| 8.30 |15.02| 7.38| 4.77|10.22|
+|None|14.30|6.82|12.38|6.38|4.01|8.78|
+|KDTree|14.30|6.82|12.38|6.38|4.01|8.78|
+|LSH|?|?|?|?|?|?|
+|Faiss|14.30|6.82|12.38|6.38|4.01|8.78|
 ## Citation
 If you find this repository useful, please consider citing our paper:
 ```
