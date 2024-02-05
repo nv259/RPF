@@ -125,21 +125,38 @@ uvicorn my_api:app *or* python my_api.py
 ```
 
 ### Performance 
-Expected MAP on FashionAI Dataset
-|             |skirt length| sleeve length| coat length |pant length |collar design| lapel design| neckline design| neck design| overall|
+Expected mAP for top 50 on FashionAI Dataset
+|      LSIS      |skirt length| sleeve length| coat length |pant length |collar design| lapel design| neckline design| neck design| overall|
 | :---------: | :--: | :--: | :--: | :---: | :---: |:--: | :--: | :---: | :---: |
-|None| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
-|KDTree| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
-|LSH|?|?|?|?|?|?|?|?|?|
-|Faiss| 58.09 |49.88 |47.16|60.68|66.87|60.99|56.95|56.61|57.15|
+|None|71.7552|62.4961|62.5449|71.9812|75.3120|72.7903|70.1916|66.9725|69.2555|
+|KDTree|71.7552|62.4961|62.5434|71.9815|75.3120|72.7903|70.1916|66.9725|69.2553|
+|LSH|69.9015|61.0136|63.5678|70.6794|74.1572|71.4406|67.7121|67.4673|68.2424|
+|Faiss|71.7552|62.4961|62.5442|71.9812|75.3120|72.7903|70.1916|66.9725|69.2554|
 
-Expected MAP on DeepFashion Dataset
-|             |texture |fabric |shape |part| style |overall|
+Expected time (s) for top 50 on FashionAI Dataset
+|      LSIS      |skirt length| sleeve length| coat length |pant length |collar design| lapel design| neckline design| neck design| overall|
+| :---------: | :--: | :--: | :--: | :---: | :---: |:--: | :--: | :---: | :---: |
+|None|1.4530|3.2494|2.2858|1.5050|0.9488|1.5021|4.2012|0.5441|15.6894|
+|KDTree|1.5010|2.8746|2.1828|1.4489|0.9457|0.7049|3.7640|0.6123|14.0341|
+|LSH|1.8179|1.6139|1.5353|2.4895|0.8220|2.039|1.6225|1.2137|13.1541|
+|FAISS|0.2241|0.5278|0.4150|0.2234|0.1414|0.1108|0.6937|0.0875|2.4236|
+
+Expected mAP for top 50 on DeepFashion Dataset
+|      LSIS      |texture |fabric |shape |part| style |overall|
 | :---------: | :--: | :--: | :--: | :---: | :---: | :---: |
-|None|14.30|6.82|12.38|6.38|4.01|8.78|
-|KDTree|14.30|6.82|12.38|6.38|4.01|8.78|
-|LSH|?|?|?|?|?|?|
-|Faiss|14.30|6.82|12.38|6.38|4.01|8.78|
+|None|23.4559|15.3517|23.4140|14.7252|10.6022|17.5098|
+|KDTree|23.4559|15.3517|23.4140|14.7252|10.6022|17.5098|
+|LSH|24.8087|14.2795|22.2055|14.4342|9.1695|16.9795|
+|Faiss|23.4559|15.3518|23.4140|14.7252|10.6022|17.5098|
+
+Expected time (s) for top 50 on DeepFashion Dataset
+|      LSIS      |texture |fabric |shape |part| style |overall|
+| :---------: | :--: | :--: | :--: | :---: | :---: | :---: |
+|None|10.1529|19.8325|11.0006|9.2706|7.1200|57.3765|
+|KDTree|8.1497|17.1082|9.0714|7.8011|6.1159|48.2463|
+|LSH|1.4266|2.6083|3.2350|2.8329|1.6917|11.7945|
+|FAISS|1.5393|3.2187|1.7680|1.5658|1.1496|9.2415|
+
 ## Citation
 If you find this repository useful, please consider citing our paper:
 ```
