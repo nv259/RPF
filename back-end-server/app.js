@@ -38,7 +38,7 @@ app.post('/submit', upload.single("image"), async (req, res) => {
     console.log(response);
     res.send(response);
   }
-  )
+  );
   // res.send('Image uploaded successfully!');
   res.json({"message": "image uploaded successfully!"});
 });
