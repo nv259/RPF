@@ -97,12 +97,13 @@
                   </a>
                 </div>
               </div>
+              <div class="image_container"> 
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-<script src="images.js"></script> 
 <script>
   window.onload = function () {
     var submitBtn = document.getElementById("submitBtn")
@@ -122,5 +123,24 @@
     });
   };
 </script>
-<script src="images.js"></script> 
+<script src="images.js"></script>
+<script>
+  fetch (form. action, 
+  {
+     method: form.method,
+     body: formData
+}).then (function (response) {
+     return response.json(); // parse response object as JSON
+}).then(function (data) {
+     // set the response message for <span> element
+     // document getElementById("response-message") textContent = data.message;
+     var imgPaths = data. img_paths;
+     var imgContainer = document.querySelector (".image_container");
+     imgPaths. forEach (function (imgPath) {
+          var img = document. createElement ("img");
+          img.src = "../" + imgPath;
+          imgContainer. appendChild(img);
+     });
+})
+</script>
 </body></html>
