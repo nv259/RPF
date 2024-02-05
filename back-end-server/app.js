@@ -5,6 +5,7 @@ const request = require("request");
 const cors = require("cors");
 const app = express();
 const port = 4000;
+const axios = require('axios').default;
 
 app.use(express.static("uploads"));
 app.use(cors());
@@ -32,25 +33,15 @@ app.post('/submit', upload.single("image"), async (req, res) => {
     "img_path": req.protocol + "://" + req.get("host") + "/" + req.file.filename,
     "attrs": req.body.attributes
   }
-  await request.post(
-    uri="http://localhost:8000/submit",
-    { json: data },
-    function (error, response, body) {
-      console.log(body);
-    }
+  await axios.post("http://localhost:8000/submit", data).then((response) => 
+  {
+    console.log(response);
+    res.send(response);
+  }
   )
   // res.send('Image uploaded successfully!');
   res.json({"message": "image uploaded successfully!"});
 });
-
-axios.post("http://localhost:8000/submit", data).then((response) => 
-{
-  console.log(response);
-  res.send(response);
-}
-);
-
-
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
